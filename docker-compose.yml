@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis/redis-stack:latest
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+
+  chunker:
+    build: ./chunker
+    ports:
+      - "5004:5004"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}   # Pass your HF token as env var
+
+  embeddings:
+    build: ./embeddings
+    ports:
+      - "5001:5001"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+
+  reranker:
+    build: ./reranker
+    ports:
+      - "5002:5002"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+
+  retriever:
+    build: ./retriever
+    ports:
+      - "5003:5003"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+
+  vector_db:
+    build: ./vector_db
+    ports:
+      - "5005:5005"
+    depends_on:
+      - redis
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
