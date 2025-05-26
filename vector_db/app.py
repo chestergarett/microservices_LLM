@@ -17,7 +17,7 @@ DOC_PREFIX = "doc:"
 def create_vector_index():
     try:
         r.ft(INDEX_NAME).create_index([
-            VectorField("embedding",
+            VectorField("embeddings",
                         "FLAT", {
                             "TYPE": "FLOAT32",
                             "DIM": VECTOR_DIM,

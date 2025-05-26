@@ -24,14 +24,14 @@ services:
   reranker:
     build: ./reranker
     ports:
-      - "5002:5002"
+      - "5003:5003"
     environment:
       - HF_TOKEN=${HF_TOKEN}
 
   retriever:
     build: ./retriever
     ports:
-      - "5003:5003"
+      - "5002:5002"
     environment:
       - HF_TOKEN=${HF_TOKEN}
 
@@ -43,3 +43,12 @@ services:
       - redis
     environment:
       - HF_TOKEN=${HF_TOKEN}
+
+  llm:
+    build: ./llm
+    ports:
+      - "5009:5009"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+    extra_hosts:
+    - "host.docker.internal:host-gateway"

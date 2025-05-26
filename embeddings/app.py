@@ -10,8 +10,19 @@ def embed():
         return jsonify({"error": "Missing 'chunks' in JSON body"}), 400
 
     try:
-        embeddings = embed_chunks(data['chunks'])
-        return jsonify({"embeddings": embeddings}), 200
+        chunks = data['chunks']
+        embeddings = embed_chunks(chunks)
+
+        if len(chunks) != len(embeddings):
+            return jsonify({"error": "Mismatch between number of chunks and embeddings"}), 500
+
+        results = [
+            {"text": chunk, "embedding": embedding}
+            for chunk, embedding in zip(chunks, embeddings)
+        ]
+
+        return jsonify({"results": results}), 200
+
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
