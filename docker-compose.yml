@@ -52,3 +52,19 @@ services:
       - HF_TOKEN=${HF_TOKEN}
     extra_hosts:
     - "host.docker.internal:host-gateway"
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ragdb
+      MYSQL_USER: raguser
+      MYSQL_PASSWORD: ragpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:

@@ -1,0 +1,1 @@
+curl -X POST -F "file=@inputs/GEGI_SOW.pdf" http://localhost:5004/chunk

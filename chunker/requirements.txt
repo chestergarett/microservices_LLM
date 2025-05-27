@@ -1,3 +1,7 @@
-Flask
+pytesseract
+pdf2image
 PyPDF2
 langchain
+Pillow
+Flask
+pycryptodome
