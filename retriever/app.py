@@ -32,7 +32,6 @@ def retrieve():
         print("Embedding response received.")
         try:
             query_embeddings = query_response.json()
-            print("Embedding response JSON:", query_embeddings)
             embedding_vector = query_embeddings["results"][0]["embedding"]
         except (ValueError, KeyError, IndexError) as e:
             print("Error parsing embedding response:", e)

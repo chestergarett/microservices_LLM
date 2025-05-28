@@ -1,0 +1,71 @@
+version: "3.9"
+
+services:
+  redis:
+    image: redis/redis-stack:latest
+    ports:
+      - "6379:6379"
+      - "8001:8001"
+
+  chunker:
+    image: yourdockerhubusername/chunker:latest
+    ports:
+      - "5004:5004"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+
+  embeddings:
+    image: yourdockerhubusername/embeddings:latest
+    ports:
+      - "5001:5001"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+
+  reranker:
+    image: yourdockerhubusername/reranker:latest
+    ports:
+      - "5003:5003"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+
+  retriever:
+    image: yourdockerhubusername/retriever:latest
+    ports:
+      - "5002:5002"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+
+  vector_db:
+    image: yourdockerhubusername/vector_db:latest
+    ports:
+      - "5005:5005"
+    depends_on:
+      - redis
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+
+  llm:
+    image: yourdockerhubusername/llm:latest
+    ports:
+      - "5009:5009"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: ragdb
+      MYSQL_USER: raguser
+      MYSQL_PASSWORD: ragpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
