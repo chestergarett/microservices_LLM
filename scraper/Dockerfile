@@ -1,0 +1,30 @@
+# Use base image
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install OS dependencies
+RUN apt-get update && apt-get install -y \
+    wget curl unzip gnupg libglib2.0-0 libnss3 libgconf-2-4 libfontconfig1 \
+    libx11-xcb1 libxcb1 libxcomposite1 libxdamage1 libxrandr2 libasound2 \
+    libatk1.0-0 libatk-bridge2.0-0 libcups2 libdbus-1-3 libxss1 \
+    libxtst6 libxshmfence1 libnss3 libgbm1 libgtk-3-0 \
+    xvfb \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Install Playwright Chromium browser (with dependencies just in case)
+RUN pip install playwright && playwright install --with-deps chromium
+
+# Copy application files
+COPY . .
+
+# Expose Flask port
+EXPOSE 5006
+
+# Run the app (Xvfb is managed by pyvirtualdisplay in Python)
+CMD ["python", "app.py"]

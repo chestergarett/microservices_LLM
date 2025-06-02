@@ -3,40 +3,46 @@ version: "3.9"
 services:
   redis:
     image: redis/redis-stack:latest
+    platform: linux/amd64
     ports:
       - "6379:6379"
       - "8001:8001"
 
   chunker:
-    image: yourdockerhubusername/chunker:latest
+    image: chestergarett/chunker:latest
+    platform: linux/amd64
     ports:
       - "5004:5004"
     environment:
       - HF_TOKEN=${HF_TOKEN}
 
   embeddings:
-    image: yourdockerhubusername/embeddings:latest
+    image: chestergarett/embeddings:latest
+    platform: linux/amd64
     ports:
       - "5001:5001"
     environment:
       - HF_TOKEN=${HF_TOKEN}
 
   reranker:
-    image: yourdockerhubusername/reranker:latest
+    image: chestergarett/reranker:latest
+    platform: linux/amd64
     ports:
       - "5003:5003"
     environment:
       - HF_TOKEN=${HF_TOKEN}
 
   retriever:
-    image: yourdockerhubusername/retriever:latest
+    image: chestergarett/retriever:latest
+    platform: linux/amd64
     ports:
       - "5002:5002"
     environment:
       - HF_TOKEN=${HF_TOKEN}
 
   vector_db:
-    image: yourdockerhubusername/vector_db:latest
+    image: chestergarett/vector_db:latest
+    platform: linux/amd64
     ports:
       - "5005:5005"
     depends_on:
@@ -45,17 +51,18 @@ services:
       - HF_TOKEN=${HF_TOKEN}
 
   llm:
-    image: yourdockerhubusername/llm:latest
+    image: chestergarett/llm:latest
+    platform: linux/amd64
     ports:
       - "5009:5009"
     environment:
       - HF_TOKEN=${HF_TOKEN}
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
   mysql:
     image: mysql:8.0
     container_name: mysql
+    platform: linux/amd64
     restart: always
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword

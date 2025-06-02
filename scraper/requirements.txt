@@ -1,0 +1,7 @@
+Flask
+requests
+python-dotenv
+playwright
+beautifulsoup4
+pyvirtualdisplay
+fake-useragent
