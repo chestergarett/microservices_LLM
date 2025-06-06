@@ -3,14 +3,12 @@ version: "3.9"
 services:
   redis:
     image: redis/redis-stack:latest
-    platform: linux/amd64
     ports:
       - "6379:6379"
       - "8001:8001"
 
   chunker:
     build: ./chunker
-    platform: linux/amd64
     ports:
       - "5004:5004"
     environment:
@@ -18,7 +16,6 @@ services:
 
   embeddings:
     build: ./embeddings
-    platform: linux/amd64
     ports:
       - "5001:5001"
     environment:
@@ -26,7 +23,6 @@ services:
 
   reranker:
     build: ./reranker
-    platform: linux/amd64
     ports:
       - "5003:5003"
     environment:
@@ -34,7 +30,6 @@ services:
 
   retriever:
     build: ./retriever
-    platform: linux/amd64
     ports:
       - "5002:5002"
     environment:
@@ -42,7 +37,6 @@ services:
 
   vector_db:
     build: ./vector_db
-    platform: linux/amd64
     ports:
       - "5005:5005"
     depends_on:
