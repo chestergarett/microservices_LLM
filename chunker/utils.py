@@ -47,3 +47,9 @@ def chunk_pdf_robust(file, chunk_size=500, chunk_overlap=50):
     )
     return splitter.split_text(raw_text)
 
+def return_raw_text(file):
+    file.seek(0)
+    raw_text = extract_text_combined(file)
+    return raw_text
+
+

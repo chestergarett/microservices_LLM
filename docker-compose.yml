@@ -6,34 +6,35 @@ services:
     ports:
       - "6379:6379"
       - "8001:8001"
-
+    
   chunker:
     build: ./chunker
     ports:
       - "5004:5004"
-    environment:
-      - HF_TOKEN=${HF_TOKEN}   # Pass your HF token as env var
-
+    env_file:
+      - .env
+    volumes:
+      - ./local_pdf:/app/shared_pdfs
   embeddings:
     build: ./embeddings
     ports:
       - "5001:5001"
-    environment:
-      - HF_TOKEN=${HF_TOKEN}
+    env_file:
+      - .env
 
   reranker:
     build: ./reranker
     ports:
       - "5003:5003"
-    environment:
-      - HF_TOKEN=${HF_TOKEN}
+    env_file:
+      - .env
 
   retriever:
     build: ./retriever
     ports:
       - "5002:5002"
-    environment:
-      - HF_TOKEN=${HF_TOKEN}
+    env_file:
+      - .env
 
   vector_db:
     build: ./vector_db
@@ -41,25 +42,24 @@ services:
       - "5005:5005"
     depends_on:
       - redis
-    environment:
-      - HF_TOKEN=${HF_TOKEN}
+
   scraper:
     build: ./scraper
     ports:
       - "5006:5006"
-    environment:
-      - NEWS_API_KEY=${NEWS_API_KEY}
     volumes:
       - ./local_output:/app/file_storage
     shm_size: 1gb
+    env_file:
+      - .env
   llm:
     build: ./llm
     ports:
       - "5009:5009"
-    environment:
-      - HF_TOKEN=${HF_TOKEN}
     extra_hosts:
     - "host.docker.internal:host-gateway"
+    env_file:
+      - .env
   mysql:
     image: mysql:8.0
     container_name: mysql
@@ -89,4 +89,10 @@ services:
 volumes:
   mysql_data:
   pgvector_data:
+
+networks:
+  default:
+    external:
+      name: shared_network
+
 
