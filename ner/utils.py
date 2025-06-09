@@ -1,4 +1,5 @@
 import json
+import os
 import random, spacy
 from spacy.util import minibatch
 from spacy.training.example import Example
@@ -39,54 +40,67 @@ def train_test_split_spacy():
     return
 
 def custom_training():
-    with open('./local_output/spacy_format.json', 'r') as file:
-        train_data = json.load(file)
+    TRAIN_DATA_PATH = './local_output/spacy_format.json'
 
+    if os.path.exists(TRAIN_DATA_PATH) and os.path.getsize(TRAIN_DATA_PATH) > 0:
+        try:
+            with open(TRAIN_DATA_PATH, 'r') as file:
+                train_data = json.load(file)
 
-    nlp = spacy.load('en_core_web_md')
-    if 'ner' not in  nlp.pipe_names:
-        ner = nlp.add_pipe('ner')
+            nlp = spacy.load('en_core_web_md')
+            
+            if 'ner' not in nlp.pipe_names:
+                ner = nlp.add_pipe('ner')
+            else:
+                ner = nlp.get_pipe('ner')
+
+            # Add labels from the training data
+            for _, annotations in train_data:
+                for ent in annotations.get('entities', []):
+                    if ent[2] not in ner.labels:
+                        ner.add_label(ent[2])
+
+            # Disable other pipes for training
+            other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'ner']
+            with nlp.disable_pipes(*other_pipes):
+                optimizer = nlp.resume_training()
+                epochs = 50
+                for epoch in range(epochs):
+                    random.shuffle(train_data)
+                    losses = {}
+                    batches = minibatch(train_data, size=2)
+                    for batch in batches:
+                        examples = []
+                        for text, annotations in batch:
+                            doc = nlp.make_doc(text)
+                            example = Example.from_dict(doc, annotations)
+                            examples.append(example)
+                        nlp.update(examples, drop=0.5, losses=losses)
+                    print(f'Epoch: {epoch}, Losses: {losses}')
+
+            # Save trained model
+            nlp.to_disk('custom_ner_model')
+            print("Custom NER model saved to 'custom_ner_model'")
+        
+        except Exception as e:
+            print(f"Error during training: {e}")
     else:
-        ner = nlp.get_pipe('ner')
+        print("Training data not found or empty. Skipping model training.")
 
-    for _, annotations in train_data:
-        for ent in annotations['entities']:
-            print('ent',ent, ent[2])
-            print('ner',ner)
-            if ent[2] not in ner.labels:
-                ner.add_label(ent[2])
-    
-    other_pipes = [pipe for pipe in nlp.pipe_names if pipe != 'ner']
-    with nlp.disable_pipes(*other_pipes):
-        optimizer = nlp.resume_training()
-        epochs = 50
-        for epoch in range(epochs):
-            random.shuffle(train_data)
-            losses = {}
-            batches = minibatch(train_data, size=2)
-            for batch in batches:
-                examples = []
-                for text, annotations in batch:
-                    doc = nlp.make_doc(text)
-                    example = Example.from_dict(doc, annotations)
-                    examples.append(example)
-                nlp.update(examples, drop=0.5, losses=losses)
-            print(f'Epoch: {epoch}, Losses: {losses}')
-    
-    nlp.to_disk('custom_ner_model')
 
-def predict():
-    trained_nlp = spacy.load('custom_ner_model')
-    with open('./local_output/spacy_format.json', 'r') as file:
-        train_data = json.load(file)
-    test_texts = [train_data[0][0]]
-    print(test_texts)
-    for text in test_texts:
-        doc = trained_nlp(text)
-        print(f'Text: {text}')
-        print('Entities', [(ent.text, ent.label_) for ent in doc.ents])
-        print()
+def predict(text,trained_nlp):
+    entities = {}
+    doc = trained_nlp(text)
+    for ent in doc.ents:
+        entities[ent.label_] = ent.text
+        
+    return entities
 # convert_labelstudio_to_spacy(r'./local_output/label_encoded_pdf.json', r'./local_output/spacy_format.json')
 # train_test_split_spacy()
 # custom_training()
-predict()
+# with open('./local_output/spacy_format.json', 'r') as file:
+#         train_data = json.load(file)
+
+# test_text = train_data[0][0]
+# entities = predict(test_text)
+# print(entities)
